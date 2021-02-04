@@ -1,0 +1,33 @@
+{
+  "name": "bonkpatrol",
+  "version": "1.0.0",
+  "description": "bonk patrol",
+  "main": "src/bonkPatrol.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon node src/bonkPatrol.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ahmedkhalifaahmed/bonk-Patrol.git"
+  },
+  "keywords": [
+    "discord",
+    "bonk",
+    "bonkpatrol"
+  ],
+  "author": "Ahmed Khalifa",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ahmedkhalifaahmed/bonk-Patrol/issues"
+  },
+  "homepage": "https://github.com/ahmedkhalifaahmed/bonk-Patrol#readme",
+  "dependencies": {
+    "discord.js": "^12.5.1",
+    "dotenv": "^8.2.0",
+    "js": "^0.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  }
+}
