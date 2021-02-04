@@ -57,7 +57,7 @@ const bonk = async (msg, client) => {
   try{
     await target.voice.setChannel(bonkChannel);
     msg.channel.send(`Bonk, <@${mentionId}> go to jail!`);
-    setTimeout(() => unbonk(target, oldChannel, bonkChannel, msg), 5000);
+    setTimeout(() => unbonk(client, target, oldChannel, bonkChannel, msg), 5000);
   } catch(error) {
     msg.channel.send(`<@${target}>... You.. You are not like the others... What are you?`);
     console.error(error);
@@ -65,7 +65,7 @@ const bonk = async (msg, client) => {
   } 
 }
 
-const unbonk = async (target, oldChannel, bonkChannel, msg) => {
+const unbonk = async (client, target, oldChannel, bonkChannel, msg) => {
   try{
     const botMember = await msg.guild.members.fetch(client.user.id);
     if(!botMember.hasPermission("MOVE_MEMBERS")) {
