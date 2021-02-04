@@ -57,7 +57,7 @@ const bonk = async (msg, client) => {
   try{
     await target.voice.setChannel(bonkChannel);
     msg.channel.send(`Bonk, <@${mentionId}> go to jail!`);
-    setTimeout(() => unbonk(target, oldChannel, bonkChannel, msg.channel), 5000);
+    setTimeout(() => unbonk(target, oldChannel, bonkChannel, msg), 5000);
   } catch(error) {
     msg.channel.send(`<@${target}>... You.. You are not like the others... What are you?`);
     console.error(error);
@@ -65,7 +65,7 @@ const bonk = async (msg, client) => {
   } 
 }
 
-const unbonk = async (target, oldChannel, bonkChannel, msgChannel) => {
+const unbonk = async (target, oldChannel, bonkChannel, msg) => {
   try{
     const botMember = await msg.guild.members.fetch(client.user.id);
     if(!botMember.hasPermission("MOVE_MEMBERS")) {
@@ -83,7 +83,7 @@ const unbonk = async (target, oldChannel, bonkChannel, msgChannel) => {
   try {
     target.voice.setChannel(oldChannel);
   } catch(error) {
-    msgChannel.send(`<@${target.id}> you've been extra horny, I can't unbonk you`);
+    msg.channel.send(`<@${target.id}> you've been extra horny, I can't unbonk you`);
     console.error(error);
     return;
   }
