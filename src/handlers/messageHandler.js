@@ -35,7 +35,7 @@ const bonk = async (msg, client) => {
   }
   let bonkChannel = null;
   try{
-    bonkChannel = msg.guild.channels.cache.reduce((a,b) => b.name === 'jail'?b:a, null);
+    bonkChannel = msg.guild.channels.cache.reduce((a,b) => b.name.toLowerCase().includes('jail')? b : a, null);
   } catch(error) {
     msg.channel.send(`<@${msg.author.id}>... You.. Where did you hide the jail?`);
     console.error(error);
