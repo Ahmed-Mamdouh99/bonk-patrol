@@ -34,7 +34,6 @@ const unbonk = async (client, msg, splitComm, bonked, jailChannel) => {
   // Get id of the unbonked user
   const mentionIds = msg.mentions.users.map(e => e.id);
   if(mentionIds !== 1 || splitComm.length !== 2) {
-    console.log(1);
     return sendHelpMessage(msg);
   }
   // Get the target
@@ -147,36 +146,50 @@ const bonk = async (client, msg, mentionId, params, bonked, cooldown, jailChanne
   }
 }
 
+/**
+ * Handles cooldown commands
+ * @param {*} msg 
+ * @param {*} params 
+ * @param {*} args 
+ */
 const handleCooldown = async (msg, params, args) => {
   // If no arguments are supplied, show current cooldown
   if(args.length === 0) {
-    return msg.reply(`The current cooldown on bonking is ${~~(params.cooldown / 1000)}seconds.`);
+    return msg.reply(`The current cooldown on bonking is ${~~(params.cooldown / 1000)} seconds.`);
   }
   // Parse the new value
   const newValue = Number(args[0]);
   if(isNaN(newValue)) {
     return msg.reply(`The value ${args[0]} is not a number.`);
   }
-  if(MAX_COOLDOWN < newValue || MIN_COOLDOWN < newValue) {
+  if(MAX_COOLDOWN < newValue || newValue < MIN_COOLDOWN) {
     return msg.reply(`Cooldown has to be between ${MIN_COOLDOWN} and ${MAX_COOLDOWN}`);
   }
-  params[cooldown] = newValue * 1000;
+  params.cooldown = newValue * 1000;
+  return msg.reply(`Cooldown is now ${newValue}`);
 }
 
+/**
+ * Handles durion commands
+ * @param {*} msg 
+ * @param {*} params 
+ * @param {*} args 
+ */
 const handleDuration = async (msg, params, args) => {
   // If no arguments are supplied, show current duration
   if(args.length === 0) {
-    return msg.reply(`The current duration for bonking is ${~~(params.duration / 1000)}seconds.`);
+    return msg.reply(`The current duration for bonking is ${~~(params.duration / 1000)} seconds.`);
   }
   // Parse the new value
   const newValue = Number(args[0]);
   if(isNaN(newValue)) {
     return msg.reply(`The value ${args[0]} is not a number.`);
   }
-  if(MAX_DURATION < newValue || MIN_DURATION < newValue) {
+  if(MAX_DURATION < newValue || newValue < MIN_DURATION) {
     return msg.reply(`Duration has to be between ${MIN_DURATION} and ${MAX_DURATION}`);
   }
-  params[duration] = newValue * 1000;
+  params.duration = newValue * 1000;
+  return msg.reply(`Duration is now ${newValue}`);
 }
 
 
@@ -188,7 +201,7 @@ const handleDuration = async (msg, params, args) => {
 const setJail = (msg, jailName) => {
   const jailChannel = msg.member.guild.channels.cache.reduce((a,b) => b.name.toLowerCase() === jailName? b:a, null);
   if(jailChannel) {
-    msg.reply(`Set Jail channel to ${jailChannel.name}`);
+    msg.reply(`Set jail channel to ${jailChannel.name}`);
   } else {
     msg.reply(`Could not find channel ${jailName}`);
   }
@@ -209,20 +222,18 @@ module.exports = (params) => {
   return async (client, msg, splitComm) => {
     if(splitComm.length === 0) {
       // Post help message
-      console.log(2);
       return sendHelpMessage(msg);
     }
     // Check the sub command
     switch(splitComm[0]) {
       case 'help':
-        console.log(3);
         return sendHelpMessage(msg);
       case 'u':
         return unbonk(client, msg, splitComm.slice(1), bonked, jailChannel);
       case 'cooldown':
-        return handleCooldown(client, msg, splitComm.slice(1), params);
+        return handleCooldown(msg, params, splitComm.slice(1));
       case 'duration':
-        return handleDuration(client, msg, splitComm.slice(1), params);
+        return handleDuration(msg, params, splitComm.slice(1));
       case 'set-jail':
         jailChannel = setJail(msg, splitComm.slice(1).join(' ')) || jailChannel;
         return;
