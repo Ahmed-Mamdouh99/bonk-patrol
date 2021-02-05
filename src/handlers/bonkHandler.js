@@ -1,6 +1,6 @@
-const MAX_COOLDOWN = 60;
+const MAX_COOLDOWN = 600;
 const MIN_COOLDOWN = 5;
-const MAX_DURATION = 60;
+const MAX_DURATION = 600;
 const MIN_DURATION = 5;
 
 /**
@@ -33,7 +33,7 @@ const sendHelpMessage = (msg) => {
 const unbonk = async (client, msg, splitComm, bonked, jailChannel) => {
   // Get id of the unbonked user
   const mentionIds = msg.mentions.users.map(e => e.id);
-  if(mentionIds !== 1 || splitComm.length !== 2) {
+  if(mentionIds.length !== 1 || splitComm.length !== 1) {
     return sendHelpMessage(msg);
   }
   // Get the target
@@ -47,33 +47,33 @@ const unbonk = async (client, msg, splitComm, bonked, jailChannel) => {
 }
 
 const unbonkHelper = async (client, target, bonked, msg, jailChannel) => {
-    // Check if the user is bonked
-    if(!bonked[target.id]) {
-      return msg.reply(`<@${target.id}> is not bonked`);
+  // Check if the user is bonked
+  if(!bonked[target.id]) {
+    return msg.reply(`<@${target.id}> is not bonked`);
+  }
+  // Check if the bot has permission to move members
+  try {
+    const botMember = await msg.guild.members.fetch(client.user.id);
+    if(!botMember.hasPermission('MOVE_MEMBERS')) {
+      return msg.reply(`Instructions unclear, I don't have permission to unbonk.`);  
     }
-    // Check if the bot has permission to move members
-    try {
-      const botMember = await msg.guild.members.fetch(client.user.id);
-      if(!botMember.hasPermission('MOVE_MEMBERS')) {
-        return msg.reply(`Instructions unclear, I don't have permission to unbonk.`);  
-      }
-    } catch(error) {
-      console.error(error);
-      return msg.reply(`Instructions unclear, bat stuck in error.`);
-    }
-    // Check if the target is still in a jail
-    if((!target.voice.channel) || target.voice.channel !== jailChannel) {
-      return msg.reply(`<@${target.id}> is not in a voice channel`);
-    }
-    // Unbonk user
-    try{
-      target.voice.setChannel(bonked[target.id]);
-      // Delete user from bonked table
-      return delete bonked[target.id];
-    } catch(error) {
-      console.error(error);
-      return msg.channel.send(`<@${target.id}> you've been extra horny, I can't unbonk you`);
-    }
+  } catch(error) {
+    console.error(error);
+    return msg.reply(`Instructions unclear, bat stuck in error.`);
+  }
+  // Check if the target is still in a jail
+  if((!target.voice.channel) || target.voice.channel !== jailChannel) {
+    return msg.reply(`<@${target.id}> is not in a voice channel`);
+  }
+  // Unbonk user
+  try{
+    target.voice.setChannel(bonked[target.id]);
+    // Delete user from bonked table
+    return delete bonked[target.id];
+  } catch(error) {
+    console.error(error);
+    return msg.channel.send(`<@${target.id}> you've been extra horny, I can't unbonk you`);
+  }
 }
 
 /**
@@ -166,7 +166,7 @@ const handleCooldown = async (msg, params, args) => {
     return msg.reply(`Cooldown has to be between ${MIN_COOLDOWN} and ${MAX_COOLDOWN}`);
   }
   params.cooldown = newValue * 1000;
-  return msg.reply(`Cooldown is now ${newValue}`);
+  return msg.reply(`Cooldown is now ${newValue} seconds`);
 }
 
 /**
@@ -189,7 +189,7 @@ const handleDuration = async (msg, params, args) => {
     return msg.reply(`Duration has to be between ${MIN_DURATION} and ${MAX_DURATION}`);
   }
   params.duration = newValue * 1000;
-  return msg.reply(`Duration is now ${newValue}`);
+  return msg.reply(`Duration is now ${newValue} seconds`);
 }
 
 
@@ -220,6 +220,10 @@ module.exports = (params) => {
   let jailChannel;
   // Return handler
   return async (client, msg, splitComm) => {
+    // Making sure only users in a voice channel can use the bot
+    if(msg.member.voice.channel && msg.member.voice.channel.type.toLowerCase() !== 'voice') {
+      msg.reply(`You need to be in a voice channel to use the bonk commands`);
+    }
     if(splitComm.length === 0) {
       // Post help message
       return sendHelpMessage(msg);
