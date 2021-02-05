@@ -1,14 +1,84 @@
 require('dotenv').config();
 const Discord = require('discord.js');
-const readyHandler = require('./handlers/readyHandler');
-const messageHandler = require('./handlers/messageHandler');
+// Import handlers
+const bonkHandler = require('./handlers/bonkHandler');
+// const cleanHandler = require('./handlers/cleanHandler');
 
+
+// Create default parameters for bot
+const defaultParams = {
+  bonk: {
+    cooldown: 10000,  // Bonking cool down per user
+    duration: 5000,   // Bonking duration
+  },
+  clean: {
+    maxClean: 100,    // Maximum number of messages to clean
+  }
+}
+
+// Create client
 const client = new Discord.Client();
 
+// Guild handlers
+const guildHandlers = {};
+
+/**
+ * Returns the handlers for a guild object
+ * @param {Guild} guild 
+ */
+const getHandlers = async (guild) => {
+  // Check if handlers exist for the guild
+  if(!guildHandlers[guild.id]){
+    // Add handlers
+    guildHandlers[guild.id] = {
+      bonk: bonkHandler(defaultParams.bonk),
+      // clean: cleanHandler(defaultParams.clean),
+    };
+  }
+  return guildHandlers[guild.id];
+}
+
+// Run when leaving a guild
+client.on('guildCreate', getHandlers);
+
+// Run when joining a guild
+client.on('guildDelete', async (guild) => {
+  if(guildHandlers[guild.id]) {
+    delete guildHandlers[guild.id];
+  }
+});
+
 // Define handlers
-client.on('ready', readyHandler(client));
-client.on('message', messageHandler(client));
+client.on('message', async (msg) => {
+  // Check if prefix is given
+  if(msg.content.startsWith('!')) {
+    // Get guild from author
+    let handlers;
+    try{
+      handlers = await getHandlers(msg.member.guild);
+    } catch(error) {
+      console.error(error);
+      return;
+    }
+    // Split command
+    const splitComm = msg.content.split(' ');
+    // Check if the command is empty
+    if(splitComm.length === 0) {
+      return;
+    }
+    // Get the parent command
+    const comm = splitComm[0].substring(1);
+    // Execute command
+    switch(comm) {
+      // Bonk command
+      case 'bonk':
+        return handlers.bonk(client, msg, splitComm.slice(1));
+      // Clean command
+      case 'clean':
+        return handlers.clean(client, msg, splitComm.slice(1));
+    }
+  }
+});
 
 // Log in
 client.login(process.env.TOKEN);
-// TODO: Document this for the love of god.
