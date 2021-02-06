@@ -218,7 +218,7 @@ module.exports = (params) => {
   // Return handler
   return async (client, msg, splitComm) => {
     // Making sure only users in a voice channel can use the bot
-    if(msg.member.voice.channel && msg.member.voice.channel.type.toLowerCase() !== 'voice') {
+    if(!msg.member.voice.channel || msg.member.voice.channel.type.toLowerCase() !== 'voice') {
       return reply(msg, `You need to be in a voice channel to use the bonk commands.`);
     }
     // Make sure only users with permission to move users can use the bonk handler
