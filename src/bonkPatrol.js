@@ -1,18 +1,24 @@
 require('dotenv').config();
+
 const Discord = require('discord.js');
 // Import handlers
 const bonkHandler = require('./handlers/bonkHandler');
-// const cleanHandler = require('./handlers/cleanHandler');
+const clearHandler = require('./handlers/clearHandler');
 
 
 // Create default parameters for bot
 const defaultParams = {
   bonk: {
-    cooldown: 10000,  // Bonking cool down per user
-    duration: 5000,   // Bonking duration
+    cooldown:     10000,  // Bonking cool down per user
+    duration:     5000,   // Bonking duration
+    maxCooldown: 600,
+    minCooldown: 5,
+    maxDuration: 600,
+    minDuration: 5,
   },
-  clean: {
-    maxClean: 100,    // Maximum number of messages to clean
+  clear: {
+    maxClear: 100,    // Maximum number of messages to clear
+    minClear:  1       // Min number of messages to clear
   }
 }
 
@@ -32,7 +38,7 @@ const getHandlers = async (guild) => {
     // Add handlers
     guildHandlers[guild.id] = {
       bonk: bonkHandler(defaultParams.bonk),
-      // clean: cleanHandler(defaultParams.clean),
+      clear: clearHandler(defaultParams.clear),
     };
   }
   return guildHandlers[guild.id];
@@ -73,9 +79,9 @@ client.on('message', async (msg) => {
       // Bonk command
       case 'bonk':
         return handlers.bonk(client, msg, splitComm.slice(1));
-      // Clean command
-      case 'clean':
-        return handlers.clean(client, msg, splitComm.slice(1));
+      // Clear command
+      case 'clear':
+        return handlers.clear(client, msg, splitComm.slice(1));
     }
   }
 });
