@@ -1,7 +1,3 @@
-const MAX_COOLDOWN = 600;
-const MIN_COOLDOWN = 5;
-const MAX_DURATION = 600;
-const MIN_DURATION = 5;
 const {reply, send} = require('../utils/delayedDelete');
 
 /**
@@ -95,11 +91,11 @@ const bonk = async (client, msg, mentionId, params, bonked, cooldown, jailChanne
   try{
     const botMember = await msg.guild.members.fetch(client.user.id);
     if(!botMember.hasPermission("MOVE_MEMBERS")) {
-      return send(msg, `<@${msg.author.id}> Instructions unclear, I don't have permission to bonk.`);  
+      return reply(msg, `<@${msg.author.id}> Instructions unclear, I don't have permission to bonk.`);  
     }
   } catch(error) {
     console.error(error);
-    return send(msg, `<@${msg.author.id}> Instructions unclear, bat stuck in error.`);
+    return reply(msg, `<@${msg.author.id}> Instructions unclear, bat stuck in error.`);
   }
   // Check if bonking yourself
   if(mentionId == client.user.id) {
@@ -163,8 +159,8 @@ const handleCooldown = async (msg, params, args) => {
   if(isNaN(newValue)) {
     return reply(msg, `The value ${args[0]} is not a number.`);
   }
-  if(MAX_COOLDOWN < newValue || newValue < MIN_COOLDOWN) {
-    return reply(msg, `Cooldown has to be between ${MIN_COOLDOWN} and ${MAX_COOLDOWN}`);
+  if(params.maxCooldown < newValue || newValue < params.minCooldown) {
+    return reply(msg, `Cooldown has to be between ${params.minCooldown} and ${params.maxCooldown}`);
   }
   params.cooldown = newValue * 1000;
   return reply(msg, `Cooldown is now ${newValue} seconds`);
@@ -186,8 +182,8 @@ const handleDuration = async (msg, params, args) => {
   if(isNaN(newValue)) {
     return reply(msg, `The value ${args[0]} is not a number.`);
   }
-  if(MAX_DURATION < newValue || newValue < MIN_DURATION) {
-    return reply(msg, `Duration has to be between ${MIN_DURATION} and ${MAX_DURATION}`);
+  if(params.maxDuration < newValue || newValue < params.minDuration) {
+    return reply(msg, `Duration has to be between ${params.minDuration} and ${params.maxDuration}`);
   }
   params.duration = newValue * 1000;
   return reply(msg, `Duration is now ${newValue} seconds`);
@@ -223,7 +219,11 @@ module.exports = (params) => {
   return async (client, msg, splitComm) => {
     // Making sure only users in a voice channel can use the bot
     if(msg.member.voice.channel && msg.member.voice.channel.type.toLowerCase() !== 'voice') {
-      reply(msg, `You need to be in a voice channel to use the bonk commands`);
+      return reply(msg, `You need to be in a voice channel to use the bonk commands.`);
+    }
+    // Make sure only users with permission to move users can use the bonk handler
+    if(!msg.member.hasPermission('MOVE_MEMBERS')) {
+      return reply(msg, 'You need to have permission to move members to use the bonk comands.');
     }
     if(splitComm.length === 0) {
       // Post help message
