@@ -95,7 +95,7 @@ client.on('message', async (msg) => {
  */
 const sendHelpMessage = (msg) => {
   const response = [
-    '```clear command: ',
+    '```Bonk Patrol: ',
     '!bonk help                  | Displays bonk comamnds help.',
     '!clear help                 | Displays clear comamnds help.',
     '!help                       | Displays this list.```',

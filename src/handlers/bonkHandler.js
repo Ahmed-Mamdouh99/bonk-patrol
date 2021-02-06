@@ -129,7 +129,7 @@ const bonk = async (client, msg, mentionId, params, bonked, cooldown, jailChanne
     // Bonk target
     await target.voice.setChannel(jailChannel);
     // Send message
-    send(msg, `Bonk, <@${mentionId}> go to jail!`);
+    send(msg, `Bonk, <@${mentionId}> go to jail!`, 10000);
     // Set old channel in bonked table
     bonked[target.id] = oldChannel;
     // Set cooldown to true
