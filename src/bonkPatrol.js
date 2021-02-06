@@ -4,6 +4,7 @@ const Discord = require('discord.js');
 // Import handlers
 const bonkHandler = require('./handlers/bonkHandler');
 const clearHandler = require('./handlers/clearHandler');
+const {reply} = require('./utils/delayedDelete');
 
 
 // Create default parameters for bot
@@ -82,9 +83,26 @@ client.on('message', async (msg) => {
       // Clear command
       case 'clear':
         return handlers.clear(client, msg, splitComm.slice(1));
+      case 'help':
+        return sendHelpMessage(msg);
     }
   }
 });
+
+/**
+ * Send help message to chat
+ * @param {*} channel 
+ */
+const sendHelpMessage = (msg) => {
+  const response = [
+    '```clear command: ',
+    '!bonk help                  | Displays bonk comamnds help.',
+    '!clear help                 | Displays clear comamnds help.',
+    '!help                       | Displays this list.```',
+  ];
+  // Return help message
+  return reply(msg, response.join('\n'));
+}
 
 // Log in
 client.login(process.env.TOKEN);
